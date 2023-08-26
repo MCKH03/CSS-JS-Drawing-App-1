@@ -7,6 +7,8 @@ const box = document.querySelector(".drawing-box");
 
 // Functions
 const draw = function (e) {
+  e.preventDefault();
+
   // Selecting the touch
   const rect = e.target.closest(".drawing-box").getBoundingClientRect();
   const [touch] = [...e.changedTouches];
