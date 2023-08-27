@@ -1,29 +1,96 @@
 "use strict";
 
 // Selecting needed elements
-const box = document.querySelector(".drawing-box");
+const canvas = document.querySelector(".canvas");
+const colorInput = document.querySelector(".input");
+const clearBtn = document.querySelector(".clear");
 
-// Creating the dot element
+// Selecting canvas context
+const ctx = canvas.getContext("2d");
+
+let painting = false;
 
 // Functions
-const draw = function (e) {
-  e.preventDefault();
+const drawDesktop = function (e) {
+  // Guard clause
+  if (!painting) return;
 
-  // Selecting the touch
-  const rect = e.target.closest(".drawing-box").getBoundingClientRect();
-  const [touch] = [...e.changedTouches];
+  const canvasBox = canvas.getBoundingClientRect();
 
-  // Creating the dot element
-  const dot = document.createElement("span");
-  dot.classList.add("dot");
-
-  // Setting the position of the dot
-  dot.style.left = touch.clientX - rect.left + "px";
-  dot.style.top = touch.clientY - rect.top + "px";
-
-  box.insertAdjacentElement("beforeend", dot);
+  ctx.lineTo(e.clientX - canvasBox.left, e.clientY - canvasBox.top);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(e.clientX, e.clientY - canvasBox.top);
 };
 
-// Event listeners
-box.addEventListener("touchstart", draw);
-box.addEventListener("touchmove", draw);
+const drawMobile = function (e) {
+  // Guard clause
+  if (!painting) return;
+
+  const [touch] = [...e.changedTouches];
+
+  const canvasBox = canvas.getBoundingClientRect();
+
+  ctx.lineTo(touch.clientX - canvasBox.left, touch.clientY - canvasBox.top);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(touch.clientX - canvasBox.left, touch.clientY - canvasBox.top);
+};
+
+const resetCanvas = function () {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  // Default canvas context properties
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 10;
+
+  // Default color of input
+  colorInput.value = "#ffffff";
+};
+
+// Event Listeners
+// // Desktop handlers
+canvas.addEventListener("mousedown", (e) => {
+  painting = true;
+  drawDesktop(e);
+});
+canvas.addEventListener("mouseup", () => {
+  painting = false;
+  ctx.beginPath();
+});
+
+canvas.addEventListener("mousemove", function (e) {
+  // Drawing
+  drawDesktop(e);
+});
+
+// // Mobile handlers
+canvas.addEventListener("touchstart", (e) => {
+  painting = true;
+  drawMobile(e);
+});
+canvas.addEventListener("touchend", () => {
+  painting = false;
+  ctx.beginPath();
+});
+
+canvas.addEventListener("touchmove", function (e) {
+  // Drawing
+  drawMobile(e);
+});
+
+colorInput.addEventListener("input", function () {
+  ctx.strokeStyle = colorInput.value;
+});
+
+clearBtn.addEventListener("click", function () {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+});
+
+window.addEventListener("resize", resetCanvas);
+
+// Setting the size of the canvas
+resetCanvas();
