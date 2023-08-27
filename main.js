@@ -78,6 +78,7 @@ canvas.addEventListener("touchend", () => {
 });
 
 canvas.addEventListener("touchmove", function (e) {
+  e.preventDefault();
   // Drawing
   drawMobile(e);
 });
